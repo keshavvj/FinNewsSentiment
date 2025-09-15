@@ -36,7 +36,7 @@ def analyze(n):
         if not full_text or len(full_text.strip()) < 100:
             full_text = article['headline'] + " " + article['summary']
 
-        # --- Split into ≤512-token chunks ---
+        # Split into ≤512-token chunks
         tokens = tokenizer(full_text, return_tensors="pt", truncation=False, padding=False)
         input_ids = tokens["input_ids"][0]
         
