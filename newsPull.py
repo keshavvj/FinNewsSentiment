@@ -1,4 +1,4 @@
-import finnhub
+import os
 from datetime import datetime, timedelta
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
@@ -7,24 +7,32 @@ from newspaper import Article
 from collections import Counter
 import streamlit as st
 
-tokenizer = AutoTokenizer.from_pretrained("yiyanghkust/finbert-tone")
-model = AutoModelForSequenceClassification.from_pretrained("yiyanghkust/finbert-tone")
+
+@st.cache_resource
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained("yiyanghkust/finbert-tone")
+    model = AutoModelForSequenceClassification.from_pretrained("yiyanghkust/finbert-tone")
+    return tokenizer, model
+
+tokenizer, model = load_model()
+
+
+def get_api_key():
+    """Fetch Finnhub API key from Streamlit secrets or environment variable."""
+    try:
+        return st.secrets["FINNHUB"]["API_KEY"]
+    except Exception:
+        key = os.environ.get("FINNHUB_API_KEY")
+        if not key:
+            raise ValueError(
+                "Finnhub API key not found. Set it via .streamlit/secrets.toml "
+                "or the FINNHUB_API_KEY environment variable."
+            )
+        return key
 
 
 
-def fetch_articles(company, days=7):
-    api = st.secrets["FINNHUB"]["API_KEY"]
 
-    finnhub_client = finnhub.Client(api_key=api)
-
-    today = datetime.today()
-
-    from_date = (today - timedelta(days=days)).strftime('%Y-%m-%d')
-    to_date = today.strftime('%Y-%m-%d')
-
-    news = finnhub_client.company_news(company, _from=from_date, to=to_date)
-
-    return get_relevant_articles(news, company)
 
 def analyze(n):
     sentiment_results = []
@@ -47,7 +55,11 @@ def analyze(n):
         # Run each chunk separately
         chunk_probs = []
         for chunk in chunks:
-            inputs = {"input_ids": chunk.unsqueeze(0)}
+            chunk_2d = chunk.unsqueeze(0)
+            inputs = {
+                "input_ids": chunk_2d,
+                "attention_mask": torch.ones_like(chunk_2d),
+            }
             with torch.no_grad():
                 outputs = model(**inputs)
                 probs_tensor = torch.nn.functional.softmax(outputs.logits, dim=1)

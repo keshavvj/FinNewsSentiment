@@ -1,0 +1,18 @@
+# Virtual environment
+venv/
+env/
+.env
+
+# Streamlit secrets (never commit API keys)
+.streamlit/secrets.toml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# macOS
+.DS_Store
+
+# HuggingFace model cache (large, auto-downloaded)
+~/.cache/huggingface/

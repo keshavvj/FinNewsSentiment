@@ -2,4 +2,7 @@ pandas
 numpy
 streamlit
 transformers
-torchs
+torch
+finnhub-python
+matplotlib
+newspaper3k
