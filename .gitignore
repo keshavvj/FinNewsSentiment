@@ -5,6 +5,7 @@ env/
 
 # Streamlit secrets (never commit API keys)
 .streamlit/secrets.toml
+.streamlit/secrets.toml.*
 
 # Python cache
 __pycache__/

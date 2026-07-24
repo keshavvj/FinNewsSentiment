@@ -6,3 +6,4 @@ torch
 finnhub-python
 matplotlib
 newspaper3k
+lxml_html_clean
